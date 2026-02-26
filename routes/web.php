@@ -37,6 +37,10 @@ Route::middleware(['auth', 'verified', EnsureIsAdmin::class])
         Route::put('/settings', [Admin\SiteSettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/seo-image', [Admin\SiteSettingController::class, 'uploadSeoImage'])->name('settings.seo-image.upload');
         Route::delete('/settings/seo-image', [Admin\SiteSettingController::class, 'deleteSeoImage'])->name('settings.seo-image.delete');
+
+        Route::get('/profile', [Admin\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [Admin\ProfileController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/profile/password', [Admin\ProfileController::class, 'updatePassword'])->name('profile.password');
     });
 
 require __DIR__.'/settings.php';

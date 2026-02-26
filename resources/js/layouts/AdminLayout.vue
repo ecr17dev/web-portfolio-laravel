@@ -10,6 +10,7 @@ import {
     Menu,
     X,
     BarChart3,
+    UserCog,
 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 
@@ -25,6 +26,7 @@ const navItems = [
     { title: 'Blogs', href: '/admin/blogs', icon: FileText },
     { title: 'Contactos', href: '/admin/contacts', icon: Mail },
     { title: 'Configuración', href: '/admin/settings', icon: Settings },
+    { title: 'Mi Cuenta', href: '/admin/profile', icon: UserCog },
 ];
 
 function isActive(href: string) {
