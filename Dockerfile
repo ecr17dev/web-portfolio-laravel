@@ -11,6 +11,11 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+# Generate Wayfinder stubs (real routes are generated at runtime by entrypoint)
+COPY docker/generate-wayfinder-stubs.sh /tmp/generate-stubs.sh
+RUN chmod +x /tmp/generate-stubs.sh && sh /tmp/generate-stubs.sh
+
 ENV DOCKER_BUILD=true
 RUN npm run build
 
