@@ -4,6 +4,8 @@ import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
+const isDockerBuild = process.env.DOCKER_BUILD === 'true';
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -20,8 +22,9 @@ export default defineConfig({
                 },
             },
         }),
-        wayfinder({
-            formVariants: true,
-        }),
+        // Wayfinder needs the Laravel backend running — skip during Docker build
+        ...(!isDockerBuild
+            ? [wayfinder({ formVariants: true })]
+            : []),
     ],
 });
