@@ -31,9 +31,8 @@ class PortfolioSeeder extends Seeder
         SiteSetting::set('hobbies', "🎮 Gaming — Soy fan de los RPGs y juegos indie. Últimamente enganchado con Baldur's Gate 3.\n☕ Café — Preparo mi propio café cada mañana con método V60. El ritual es parte del proceso creativo.\n📚 Lectura — Leo sobre arquitectura de software, productividad y ciencia ficción.\n🏃 Running — Corro 3 veces por semana. Me ayuda a despejar la mente y pensar mejor.\n🎵 Música — Siempre programo con música. Lo-fi, post-rock y jazz son mis géneros favoritos.");
 
         // Side Projects (with placeholder images)
-        Project::create([
+        Project::updateOrCreate(['slug' => 'devtracker'], [
             'title' => 'DevTracker',
-            'slug' => 'devtracker',
             'description' => 'Aplicación de seguimiento de tiempo para desarrolladores. Registra horas por proyecto, genera reportes semanales y se integra con GitHub para trackear commits automáticamente.',
             'image' => 'projects/devtracker.svg',
             'url' => 'https://devtracker.example.com',
@@ -45,9 +44,8 @@ class PortfolioSeeder extends Seeder
             'published' => true,
         ]);
 
-        Project::create([
+        Project::updateOrCreate(['slug' => 'snippetvault'], [
             'title' => 'SnippetVault',
-            'slug' => 'snippetvault',
             'description' => 'Gestor de snippets de código con syntax highlighting, tags, búsqueda full-text y sincronización entre dispositivos. Pensado para devs que quieren tener su propia colección organizada.',
             'image' => 'projects/snippetvault.svg',
             'repo_url' => 'https://github.com/user/snippetvault',
@@ -58,9 +56,8 @@ class PortfolioSeeder extends Seeder
             'published' => true,
         ]);
 
-        Project::create([
+        Project::updateOrCreate(['slug' => 'cli-invoice'], [
             'title' => 'CLI Invoice',
-            'slug' => 'cli-invoice',
             'description' => 'Herramienta de línea de comandos para generar facturas en PDF desde un archivo YAML. Ideal para freelancers que quieren facturar rápido sin abrir ningún programa.',
             'image' => 'projects/cli-invoice.svg',
             'repo_url' => 'https://github.com/user/cli-invoice',
@@ -71,9 +68,8 @@ class PortfolioSeeder extends Seeder
         ]);
 
         // Portfolio (with placeholder images)
-        Project::create([
+        Project::updateOrCreate(['slug' => 'mediconnect'], [
             'title' => 'MediConnect — Plataforma de Telemedicina',
-            'slug' => 'mediconnect',
             'description' => 'Plataforma completa de telemedicina con videollamadas, gestión de citas, historial clínico digital y pasarela de pagos. Desarrollada para una clínica con +200 médicos activos y +15,000 pacientes registrados.',
             'image' => 'projects/mediconnect.svg',
             'url' => 'https://mediconnect.example.com',
@@ -84,9 +80,8 @@ class PortfolioSeeder extends Seeder
             'published' => true,
         ]);
 
-        Project::create([
+        Project::updateOrCreate(['slug' => 'freshmarket'], [
             'title' => 'FreshMarket — E-commerce de Productos Orgánicos',
-            'slug' => 'freshmarket',
             'description' => 'Tienda online con catálogo dinámico, carrito de compras, suscripciones semanales de canastas orgánicas y sistema de delivery con tracking en tiempo real. Procesando +500 órdenes semanales.',
             'image' => 'projects/freshmarket.svg',
             'url' => 'https://freshmarket.example.com',
@@ -97,9 +92,8 @@ class PortfolioSeeder extends Seeder
             'published' => true,
         ]);
 
-        Project::create([
+        Project::updateOrCreate(['slug' => 'eduplatform'], [
             'title' => 'EduPlatform — LMS Corporativo',
-            'slug' => 'eduplatform',
             'description' => 'Sistema de gestión de aprendizaje para empresas con cursos en video, evaluaciones, certificados automáticos y dashboard de progreso. Usado por 3 empresas con +2,000 empleados en total.',
             'image' => 'projects/eduplatform.svg',
             'url' => 'https://eduplatform.example.com',
@@ -109,9 +103,8 @@ class PortfolioSeeder extends Seeder
             'published' => true,
         ]);
 
-        Project::create([
+        Project::updateOrCreate(['slug' => 'propmanager'], [
             'title' => 'PropManager — Gestión Inmobiliaria',
-            'slug' => 'propmanager',
             'description' => 'CRM inmobiliario con publicación automática en portales, gestión de leads, agenda de visitas y generación de contratos. Integrado con Inmuebles24 y Mercado Libre.',
             'image' => 'projects/propmanager.svg',
             'tags' => ['Laravel', 'Livewire', 'TailwindCSS', 'REST APIs'],
@@ -121,9 +114,8 @@ class PortfolioSeeder extends Seeder
         ]);
 
         // Blogs (with placeholder images)
-        Blog::create([
+        Blog::updateOrCreate(['slug' => 'como-estructuro-mis-proyectos-laravel-2025'], [
             'title' => 'Cómo estructuro mis proyectos Laravel en 2025',
-            'slug' => 'como-estructuro-mis-proyectos-laravel-2025',
             'excerpt' => 'Después de años trabajando con Laravel, encontré una estructura que me permite escalar proyectos sin perder la cordura. Te comparto mi approach con Actions, DTOs y Service classes.',
             'image' => 'blogs/laravel-structure.svg',
             'content' => "## El problema con la estructura por defecto\n\nLaravel es increíblemente flexible, pero esa flexibilidad puede ser un arma de doble filo.\n\n## Mi estructura actual\n\nUso una combinación de Actions, DTOs y Services.",
@@ -132,9 +124,8 @@ class PortfolioSeeder extends Seeder
             'published_at' => now()->subDays(5),
         ]);
 
-        Blog::create([
+        Blog::updateOrCreate(['slug' => 'vue3-composables-que-uso-siempre'], [
             'title' => 'Vue 3 Composables que uso en todos mis proyectos',
-            'slug' => 'vue3-composables-que-uso-siempre',
             'excerpt' => 'Una colección de composables reutilizables que me ahorran horas de trabajo: useDebounce, usePagination, useConfirmDialog y más.',
             'image' => 'blogs/vue-composables.svg',
             'content' => "## ¿Por qué composables?\n\nLos composables son la forma más elegante de reutilizar lógica en Vue 3.",
@@ -143,9 +134,8 @@ class PortfolioSeeder extends Seeder
             'published_at' => now()->subDays(12),
         ]);
 
-        Blog::create([
+        Blog::updateOrCreate(['slug' => 'deploy-laravel-github-actions-docker'], [
             'title' => 'Deploy de Laravel con GitHub Actions y Docker',
-            'slug' => 'deploy-laravel-github-actions-docker',
             'excerpt' => 'Mi pipeline de CI/CD completo: tests automáticos, build de Docker, deploy a producción con zero downtime.',
             'image' => 'blogs/docker-deploy.svg',
             'content' => "## El setup\n\nUso un VPS con Docker Compose y GitHub Actions como CI/CD.",
@@ -154,9 +144,8 @@ class PortfolioSeeder extends Seeder
             'published_at' => now()->subDays(20),
         ]);
 
-        Blog::create([
+        Blog::updateOrCreate(['slug' => 'tailwindcss-v4-migracion'], [
             'title' => 'TailwindCSS v4: lo que cambió y cómo migrar',
-            'slug' => 'tailwindcss-v4-migracion',
             'excerpt' => 'Tailwind v4 trajo cambios importantes en la configuración. Te explico las diferencias clave y cómo migrar.',
             'image' => 'blogs/tailwind-v4.svg',
             'content' => "## Los cambios principales\n\nCSS-first configuration, nuevo motor de compilación, variables CSS nativas.",
@@ -165,9 +154,8 @@ class PortfolioSeeder extends Seeder
             'published_at' => now()->subDays(30),
         ]);
 
-        Blog::create([
+        Blog::updateOrCreate(['slug' => 'autenticacion-laravel-fortify-vue3'], [
             'title' => 'Autenticación con Laravel Fortify + Vue 3',
-            'slug' => 'autenticacion-laravel-fortify-vue3',
             'excerpt' => 'Guía completa para implementar login, registro, 2FA y recuperación de contraseña usando Fortify como backend.',
             'image' => 'blogs/fortify-auth.svg',
             'content' => "## ¿Por qué Fortify?\n\nFortify te da toda la lógica de autenticación sin imponer vistas.",
@@ -177,25 +165,22 @@ class PortfolioSeeder extends Seeder
         ]);
 
         // Contacts
-        Contact::create([
+        Contact::updateOrCreate(['email' => 'maria.gonzalez@example.com'], [
             'name' => 'María González',
-            'email' => 'maria.gonzalez@example.com',
             'subject' => 'Proyecto e-commerce',
             'message' => 'Hola, tengo una tienda de ropa y quiero lanzar mi e-commerce. ¿Podríamos agendar una llamada?',
             'read' => false,
         ]);
 
-        Contact::create([
+        Contact::updateOrCreate(['email' => 'carlos.mendoza@example.com'], [
             'name' => 'Carlos Mendoza',
-            'email' => 'carlos.mendoza@example.com',
             'subject' => 'Consultoría Laravel',
             'message' => 'Somos un equipo de 4 devs migrando de CodeIgniter a Laravel. ¿Ofreces consultoría por hora?',
             'read' => false,
         ]);
 
-        Contact::create([
+        Contact::updateOrCreate(['email' => 'ana.rodriguez@example.com'], [
             'name' => 'Ana Rodríguez',
-            'email' => 'ana.rodriguez@example.com',
             'subject' => 'Colaboración open source',
             'message' => 'Vi tu proyecto SnippetVault en GitHub. ¿Te interesaría colaborar?',
             'read' => true,

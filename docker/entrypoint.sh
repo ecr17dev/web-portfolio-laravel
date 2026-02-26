@@ -42,11 +42,14 @@ php artisan migrate --force
 php artisan storage:link --force 2>/dev/null || true
 
 # ---- Seed admin on first run ----
-if [ ! -f storage/.seeded ]; then
+# Check if admin user exists as indicator that seeding was already done
+SEEDED=$(php artisan tinker --execute="echo \App\Models\User::where('is_admin', true)->exists() ? 'yes' : 'no';" 2>/dev/null | tail -1)
+if [ "$SEEDED" != "yes" ]; then
     echo "🌱 Running initial seeders..."
     php artisan db:seed --class=AdminSeeder --force
     php artisan db:seed --class=PortfolioSeeder --force
-    touch storage/.seeded
+else
+    echo "✅ Database already seeded, skipping"
 fi
 
 # ---- Generate Wayfinder routes ----
