@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,6 +36,11 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $favicon = SiteSetting::get('favicon', '');
+
+        // Share favicon with the Blade root template
+        view()->share('favicon', $favicon);
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
