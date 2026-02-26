@@ -29,6 +29,7 @@ class BlogController extends Controller
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
+        $validated['excerpt'] = isset($validated['excerpt']) ? trim(strip_tags($validated['excerpt'])) : null;
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('blogs', 'public');
@@ -55,6 +56,7 @@ class BlogController extends Controller
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
+        $validated['excerpt'] = isset($validated['excerpt']) ? trim(strip_tags($validated['excerpt'])) : null;
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('blogs', 'public');

@@ -24,4 +24,13 @@ class Blog extends Model
     {
         return $query->where('published', true);
     }
+
+    /**
+     * Strip HTML tags from excerpt for display.
+     */
+    public function getExcerptAttribute(?string $value): ?string
+    {
+        return $value ? trim(strip_tags($value)) : null;
+    }
+
 }
