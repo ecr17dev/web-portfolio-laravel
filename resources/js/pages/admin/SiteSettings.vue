@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import RichEditor from '@/components/RichEditor.vue';
 import {
     IconBrandGithub, IconBrandLinkedin, IconBrandX, IconBrandInstagram,
     IconBrandYoutube, IconBrandTiktok, IconBrandDiscord, IconWorld,
     IconUpload, IconTrash,
 } from '@tabler/icons-vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import RichEditor from '@/components/RichEditor.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 
 const socialFields = [
     { key: 'social_github', label: 'GitHub', icon: IconBrandGithub, placeholder: 'https://github.com/usuario' },
@@ -36,6 +36,8 @@ const form = useForm({
     hero_title: props.settings.hero_title || '',
     hero_subtitle: props.settings.hero_subtitle || '',
     hero_badge: props.settings.hero_badge || '',
+    hero_image_shape: props.settings.hero_image_shape || 'circle',
+    hero_image_size: props.settings.hero_image_size || '112',
     about: props.settings.about || '',
     hobbies: props.settings.hobbies || '',
     social_github: props.settings.social_github || '',
@@ -66,13 +68,24 @@ const form = useForm({
 const ogImagePreview = ref(props.settings.og_image || '');
 const twitterImagePreview = ref(props.settings.twitter_image || '');
 const faviconPreview = ref(props.settings.favicon || '');
+const heroImagePreview = ref(props.settings.hero_image || '');
 const uploadingImage = ref(false);
+const heroImageSizePx = computed(() => {
+    const size = Number(form.hero_image_size);
+    if (!Number.isFinite(size)) return 112;
+    return Math.min(240, Math.max(64, Math.round(size)));
+});
+const heroImageShapeClass = computed(() => {
+    if (form.hero_image_shape === 'square') return 'rounded-none';
+    if (form.hero_image_shape === 'rounded') return 'rounded-2xl';
+    return 'rounded-full';
+});
 
 function save() {
     form.put('/admin/settings');
 }
 
-function uploadSeoImage(event: Event, type: 'og_image' | 'twitter_image' | 'favicon') {
+function uploadSeoImage(event: Event, type: 'og_image' | 'twitter_image' | 'favicon' | 'hero_image') {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     uploadingImage.value = true;
@@ -85,20 +98,22 @@ function uploadSeoImage(event: Event, type: 'og_image' | 'twitter_image' | 'favi
             const url = URL.createObjectURL(file);
             if (type === 'og_image') ogImagePreview.value = url;
             else if (type === 'twitter_image') twitterImagePreview.value = url;
-            else faviconPreview.value = url;
+            else if (type === 'favicon') faviconPreview.value = url;
+            else heroImagePreview.value = url;
         },
         onFinish: () => { uploadingImage.value = false; },
     });
 }
 
-function deleteSeoImage(type: 'og_image' | 'twitter_image' | 'favicon') {
+function deleteSeoImage(type: 'og_image' | 'twitter_image' | 'favicon' | 'hero_image') {
     router.delete('/admin/settings/seo-image', {
         data: { type },
         preserveScroll: true,
         onSuccess: () => {
             if (type === 'og_image') ogImagePreview.value = '';
             else if (type === 'twitter_image') twitterImagePreview.value = '';
-            else faviconPreview.value = '';
+            else if (type === 'favicon') faviconPreview.value = '';
+            else heroImagePreview.value = '';
         },
     });
 }
@@ -129,6 +144,45 @@ function deleteSeoImage(type: 'og_image' | 'twitter_image' | 'favicon') {
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-foreground">Badge</label>
                     <input v-model="form.hero_badge" type="text" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none" placeholder="Full Stack Developer" />
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-foreground">Foto de perfil hero</label>
+                    <p class="mb-2 text-xs text-muted-foreground">Formato recomendado: imagen cuadrada (ej. 500×500).</p>
+                    <div class="flex items-center gap-4">
+                        <div v-if="heroImagePreview" class="flex items-center gap-3">
+                            <img
+                                :src="heroImagePreview.startsWith('blob:') ? heroImagePreview : `/storage/${heroImagePreview}`"
+                                alt="Hero profile"
+                                class="border-2 border-primary/40 object-cover"
+                                :class="heroImageShapeClass"
+                                :style="{ width: `${heroImageSizePx}px`, height: `${heroImageSizePx}px` }"
+                            />
+                            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-destructive/30 px-2.5 py-1.5 text-xs text-destructive hover:bg-destructive/10 transition-colors" @click="deleteSeoImage('hero_image')">
+                                <IconTrash class="h-3.5 w-3.5" :stroke-width="1.5" /> Eliminar
+                            </button>
+                        </div>
+                        <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            <IconUpload class="h-4 w-4" :stroke-width="1.5" /> Subir foto
+                            <input type="file" accept="image/*" class="hidden" @change="uploadSeoImage($event, 'hero_image')" />
+                        </label>
+                    </div>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-foreground">Forma de la foto</label>
+                        <select v-model="form.hero_image_shape" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none">
+                            <option value="circle">Circular</option>
+                            <option value="square">Cuadrada</option>
+                            <option value="rounded">Redondeada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="mb-1.5 flex items-center justify-between">
+                            <label class="block text-sm font-medium text-foreground">Tamaño</label>
+                            <span class="text-xs text-muted-foreground">{{ heroImageSizePx }} px</span>
+                        </div>
+                        <input v-model="form.hero_image_size" type="range" min="64" max="240" step="4" class="w-full accent-primary" />
+                    </div>
                 </div>
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-foreground">Título principal</label>
@@ -282,7 +336,6 @@ function deleteSeoImage(type: 'og_image' | 'twitter_image' | 'favicon') {
             <button type="submit" :disabled="form.processing" class="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
                 {{ form.processing ? 'Guardando...' : 'Guardar cambios' }}
             </button>
-            <p v-if="$page.props.flash?.success" class="text-sm text-green-600 dark:text-green-400">{{ $page.props.flash.success }}</p>
         </form>
     </AdminLayout>
 </template>

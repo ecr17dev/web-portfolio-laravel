@@ -23,6 +23,9 @@ class SiteSettingController extends Controller
             'hero_title' => SiteSetting::get('hero_title', 'Hola, soy un Desarrollador Laravel'),
             'hero_subtitle' => SiteSetting::get('hero_subtitle', 'Creando experiencias web con código limpio y diseño funcional.'),
             'hero_badge' => SiteSetting::get('hero_badge', 'Full Stack Developer'),
+            'hero_image' => SiteSetting::get('hero_image', ''),
+            'hero_image_shape' => SiteSetting::get('hero_image_shape', 'circle'),
+            'hero_image_size' => SiteSetting::get('hero_image_size', '112'),
             'about' => SiteSetting::get('about', ''),
             'hobbies' => SiteSetting::get('hobbies', ''),
             'social_github' => SiteSetting::get('social_github', ''),
@@ -55,6 +58,8 @@ class SiteSettingController extends Controller
             'hero_title' => 'nullable|string|max:500',
             'hero_subtitle' => 'nullable|string|max:1000',
             'hero_badge' => 'nullable|string|max:200',
+            'hero_image_shape' => 'nullable|string|in:circle,square,rounded',
+            'hero_image_size' => 'nullable|integer|min:64|max:240',
             'about' => 'nullable|string|max:50000',
             'hobbies' => 'nullable|string|max:50000',
             'social_github' => 'nullable|url|max:500',
@@ -93,7 +98,7 @@ class SiteSettingController extends Controller
     {
         $request->validate([
             'image' => 'required|image|max:2048',
-            'type' => 'required|string|in:og_image,twitter_image,favicon',
+            'type' => 'required|string|in:og_image,twitter_image,favicon,hero_image',
         ]);
 
         $type = $request->input('type');
@@ -112,7 +117,7 @@ class SiteSettingController extends Controller
     public function deleteSeoImage(Request $request)
     {
         $request->validate([
-            'type' => 'required|string|in:og_image,twitter_image,favicon',
+            'type' => 'required|string|in:og_image,twitter_image,favicon,hero_image',
         ]);
 
         $type = $request->input('type');

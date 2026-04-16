@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { Head, useForm, router, Link } from '@inertiajs/vue3';
-import { useAppearance } from '@/composables/useAppearance';
-import PixelParticles from '@/components/PixelParticles.vue';
-import Navbar from '@/components/Navbar.vue';
-import Swal from 'sweetalert2';
 import {
   IconUser, IconRocket, IconBriefcase, IconArticle, IconMail,
   IconBrandGithub, IconBrandLinkedin, IconBrandX, IconBrandInstagram,
@@ -11,7 +7,12 @@ import {
   IconExternalLink, IconArrowUp, IconSend, IconCalendar, IconTag,
   IconCode, IconTerminal2, IconDeviceGamepad2,
 } from '@tabler/icons-vue';
-import { type Component, computed } from 'vue';
+import Swal from 'sweetalert2';
+import { computed } from 'vue';
+import type { Component } from 'vue';
+import Navbar from '@/components/Navbar.vue';
+import PixelParticles from '@/components/PixelParticles.vue';
+import { useAppearance } from '@/composables/useAppearance';
 
 type Project = { id: number; title: string; description: string; image: string | null; url: string | null; repo_url: string | null; tags: string[] | null; type: string; featured: boolean };
 type Blog = { id: number; title: string; slug: string; excerpt: string | null; image: string | null; tags: string[] | null; published_at: string | null };
@@ -26,7 +27,8 @@ type Seo = {
 };
 
 const props = defineProps<{
-  heroTitle: string; heroSubtitle: string; heroBadge: string;
+  heroTitle: string; heroSubtitle: string; heroBadge: string; heroImage: string;
+  heroImageShape: 'circle' | 'square' | 'rounded'; heroImageSize: number;
   about: string; hobbies: string; socials: Social[];
   sideProjects: Paginated<Project>; portfolios: Paginated<Project>; blogs: Paginated<Blog>;
   sectionVisibility: Record<string, boolean>;
@@ -40,6 +42,16 @@ const socialIcons: Record<string, Component> = {
 };
 
 const { resolvedAppearance } = useAppearance();
+const heroImageSizePx = computed(() => {
+  const size = Number(props.heroImageSize);
+  if (!Number.isFinite(size)) return 112;
+  return Math.min(240, Math.max(64, Math.round(size)));
+});
+const heroImageShapeClass = computed(() => {
+  if (props.heroImageShape === 'square') return 'rounded-none';
+  if (props.heroImageShape === 'rounded') return 'rounded-2xl';
+  return 'rounded-full';
+});
 
 const contactForm = useForm({ name: '', email: '', subject: '', message: '' });
 function submitContact() {
@@ -106,6 +118,15 @@ function paginationLabel(label: string): string {
     <span v-if="heroBadge" class="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg px-3 py-1 text-xs font-medium text-muted-foreground">
       <IconTerminal2 class="h-3 w-3 text-primary" :stroke-width="1.5" /> {{ heroBadge }}
     </span>
+    <div v-if="heroImage" class="mb-5 flex justify-center">
+      <img
+        :src="`/storage/${heroImage}`"
+        alt="Foto de perfil"
+        class="border-2 border-primary/40 object-cover shadow-lg shadow-black/20"
+        :class="heroImageShapeClass"
+        :style="{ width: `${heroImageSizePx}px`, height: `${heroImageSizePx}px` }"
+      />
+    </div>
     <h1 class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-tight">{{ heroTitle }}</h1>
     <p class="mx-auto mt-4 max-w-xl text-base text-muted-foreground leading-relaxed">{{ heroSubtitle }}</p>
     <div class="mt-6 flex items-center justify-center gap-3">

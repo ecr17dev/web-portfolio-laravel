@@ -12,7 +12,8 @@ import {
     BarChart3,
     UserCog,
 } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
+import { ref, computed, watch } from 'vue';
 
 const page = usePage();
 const sidebarOpen = ref(false);
@@ -33,6 +34,35 @@ function isActive(href: string) {
     if (href === '/admin') return currentUrl.value === '/admin';
     return currentUrl.value.startsWith(href);
 }
+
+function showSuccessAlert(message: string) {
+    if (typeof window === 'undefined') return;
+
+    const isDarkMode = document.documentElement.classList.contains('dark');
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Cambio guardado',
+        text: message,
+        confirmButtonText: 'Cerrar',
+        confirmButtonColor: isDarkMode ? '#fafafa' : '#171717',
+        background: isDarkMode ? '#0a0a0a' : '#ffffff',
+        color: isDarkMode ? '#fafafa' : '#0a0a0a',
+        customClass: {
+            popup: 'rounded-xl border border-white/10',
+        },
+    });
+}
+
+watch(
+    () => page.props.flash,
+    (flash) => {
+        const message = flash?.success;
+        if (!message) return;
+        showSuccessAlert(message);
+    },
+    { immediate: true },
+);
 </script>
 
 <template>

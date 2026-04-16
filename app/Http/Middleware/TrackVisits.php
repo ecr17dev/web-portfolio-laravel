@@ -18,7 +18,7 @@ class TrackVisits
         // Only track GET requests to non-admin, non-asset pages
         if (
             $request->isMethod('GET')
-            && ! $request->is('admin*', 'api*', 'build*', 'storage*', 'favicon*', 'robots*')
+            && ! $request->is('admin*', 'api*', 'build*', 'storage*', 'favicon*', 'robots*', 'sitemap*')
             && ! $request->ajax()
             && $response->getStatusCode() === 200
         ) {
