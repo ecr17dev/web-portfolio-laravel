@@ -51,6 +51,9 @@ class ProjectController extends Controller
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('projects', 'public');
+        } else {
+            // Keep current cover image when no new file is uploaded.
+            unset($validated['image']);
         }
 
         $validated['gallery'] = $this->storeGalleryImages($request);

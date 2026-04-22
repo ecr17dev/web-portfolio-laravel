@@ -201,4 +201,46 @@ class ProjectFeatureTest extends TestCase
         $this->assertSame('TypeScript', $project->technologies[0]['name']);
         $this->assertSame('Nuevo problema', $project->challenge);
     }
+
+    public function test_admin_update_keeps_cover_image_when_no_new_image_is_uploaded(): void
+    {
+        Storage::fake('public');
+
+        $admin = User::factory()->create([
+            'is_admin' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $project = Project::create([
+            'title' => 'Proyecto Con Portada',
+            'slug' => 'proyecto-con-portada',
+            'description' => 'Resumen',
+            'image' => 'projects/original-cover.jpg',
+            'type' => 'portfolio',
+            'published' => true,
+        ]);
+
+        $payload = [
+            '_method' => 'PUT',
+            'title' => 'Proyecto Con Portada',
+            'description' => 'Resumen editado',
+            'challenge' => null,
+            'solution' => null,
+            'results' => null,
+            'type' => 'portfolio',
+            'published' => true,
+            'featured' => false,
+            'sort_order' => 0,
+            'features' => [],
+            'technologies' => [],
+            'gallery_images' => [],
+        ];
+
+        $response = $this->actingAs($admin)->post("/admin/projects/{$project->id}", $payload);
+
+        $response->assertRedirect();
+
+        $project->refresh();
+        $this->assertSame('projects/original-cover.jpg', $project->image);
+    }
 }
