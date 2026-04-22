@@ -5,10 +5,11 @@ import {
   IconBrandGithub, IconBrandLinkedin, IconBrandX, IconBrandInstagram,
   IconBrandYoutube, IconBrandTiktok, IconBrandDiscord, IconWorld,
   IconExternalLink, IconArrowUp, IconSend, IconCalendar, IconTag,
-  IconCode, IconTerminal2, IconDeviceGamepad2,
+  IconCode, IconTerminal2, IconDeviceGamepad2, IconCertificate,
+  IconChevronLeft, IconChevronRight,
 } from '@tabler/icons-vue';
 import Swal from 'sweetalert2';
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import type { Component } from 'vue';
 import Navbar from '@/components/Navbar.vue';
 import PixelParticles from '@/components/PixelParticles.vue';
@@ -16,6 +17,7 @@ import { useAppearance } from '@/composables/useAppearance';
 
 type Project = { id: number; slug: string; title: string; description: string; image: string | null; url: string | null; repo_url: string | null; tags: string[] | null; type: string; featured: boolean };
 type Blog = { id: number; title: string; slug: string; excerpt: string | null; image: string | null; tags: string[] | null; published_at: string | null };
+type Certification = { id: number; title: string; description: string; image: string; certificate_file: string | null; published: boolean; sort_order: number };
 type Paginated<T> = { data: T[]; current_page: number; last_page: number; links: { url: string | null; label: string; active: boolean }[] };
 type Social = { network: string; url: string };
 
@@ -30,7 +32,7 @@ const props = defineProps<{
   heroTitle: string; heroSubtitle: string; heroBadge: string; heroImage: string;
   heroImageShape: 'circle' | 'square' | 'rounded'; heroImageSize: number;
   about: string; hobbies: string; socials: Social[];
-  sideProjects: Paginated<Project>; portfolios: Paginated<Project>; blogs: Paginated<Blog>;
+  sideProjects: Paginated<Project>; portfolios: Paginated<Project>; certifications: Certification[]; blogs: Paginated<Blog>;
   sectionVisibility: Record<string, boolean>;
   seo: Seo;
 }>();
@@ -77,6 +79,7 @@ const allSections = [
   { id: 'about', label: 'Sobre mí', icon: IconUser, visKey: 'about' },
   { id: 'side-projects', label: 'Projects', icon: IconRocket, visKey: 'projects' },
   { id: 'portfolio', label: 'Portafolio', icon: IconBriefcase, visKey: 'portfolio' },
+  { id: 'certifications', label: 'Certificaciones', icon: IconCertificate, visKey: 'certifications' },
   { id: 'blog', label: 'Blog', icon: IconArticle, visKey: 'blog' },
   { id: 'contact', label: 'Contacto', icon: IconMail, visKey: 'contact' },
 ];
@@ -91,6 +94,106 @@ function paginationLabel(label: string): string {
 function goToProject(slug: string) {
   router.visit(`/projects/${slug}`);
 }
+
+const certificationStartIndex = ref(0);
+const certificationItemsPerView = ref(3);
+const isCertificationPaused = ref(false);
+const prefersReducedMotion = ref(false);
+let certificationAutoplay: ReturnType<typeof setInterval> | null = null;
+let reducedMotionQuery: MediaQueryList | null = null;
+
+const certificationMaxStartIndex = computed(() => {
+  return Math.max(0, props.certifications.length - certificationItemsPerView.value);
+});
+
+const certificationTrackStyle = computed(() => ({
+  transform: `translateX(-${(certificationStartIndex.value * 100) / certificationItemsPerView.value}%)`,
+}));
+
+const certificationCanSlide = computed(() => {
+  return props.certifications.length > certificationItemsPerView.value;
+});
+
+function updateCertificationItemsPerView() {
+  if (typeof window === 'undefined') return;
+
+  if (window.innerWidth >= 1024) {
+    certificationItemsPerView.value = 3;
+  } else if (window.innerWidth >= 640) {
+    certificationItemsPerView.value = 2;
+  } else {
+    certificationItemsPerView.value = 1;
+  }
+
+  if (certificationStartIndex.value > certificationMaxStartIndex.value) {
+    certificationStartIndex.value = certificationMaxStartIndex.value;
+  }
+
+  startCertificationAutoplay();
+}
+
+function nextCertification() {
+  if (!certificationCanSlide.value) return;
+
+  certificationStartIndex.value = certificationStartIndex.value >= certificationMaxStartIndex.value
+    ? 0
+    : certificationStartIndex.value + 1;
+}
+
+function prevCertification() {
+  if (!certificationCanSlide.value) return;
+
+  certificationStartIndex.value = certificationStartIndex.value <= 0
+    ? certificationMaxStartIndex.value
+    : certificationStartIndex.value - 1;
+}
+
+function stopCertificationAutoplay() {
+  if (!certificationAutoplay) return;
+  clearInterval(certificationAutoplay);
+  certificationAutoplay = null;
+}
+
+function startCertificationAutoplay() {
+  stopCertificationAutoplay();
+
+  if (prefersReducedMotion.value || !certificationCanSlide.value) return;
+
+  certificationAutoplay = setInterval(() => {
+    if (isCertificationPaused.value) return;
+    nextCertification();
+  }, 4500);
+}
+
+function handleReducedMotionChange(event: MediaQueryListEvent) {
+  prefersReducedMotion.value = event.matches;
+  startCertificationAutoplay();
+}
+
+onMounted(() => {
+  if (typeof window === 'undefined') return;
+
+  updateCertificationItemsPerView();
+  window.addEventListener('resize', updateCertificationItemsPerView);
+
+  reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  prefersReducedMotion.value = reducedMotionQuery.matches;
+  reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
+
+  startCertificationAutoplay();
+});
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', updateCertificationItemsPerView);
+  }
+
+  if (reducedMotionQuery) {
+    reducedMotionQuery.removeEventListener('change', handleReducedMotionChange);
+  }
+
+  stopCertificationAutoplay();
+});
 </script>
 
 <template>
@@ -257,6 +360,65 @@ function goToProject(slug: string) {
     <div v-if="portfolios.last_page > 1" class="mt-4 flex items-center justify-center gap-1">
       <button v-for="link in portfolios.links" :key="link.label" :disabled="!link.url" @click="goToPage(link.url, 'portfolio')" class="rounded-md border px-2.5 py-1 text-xs transition-colors disabled:opacity-30" :class="link.active ? 'border-primary bg-primary text-primary-foreground' : 'border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg text-muted-foreground hover:text-foreground'" v-html="paginationLabel(link.label)" />
     </div>
+  </section>
+
+  <!-- ===== CERTIFICATIONS ===== -->
+  <section v-if="sectionVisibility.certifications" id="certifications" class="relative z-20 mx-auto max-w-5xl px-6 py-10">
+    <div class="mb-5 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <IconCertificate class="h-5 w-5 text-primary" :stroke-width="1.5" />
+        <h2 class="text-lg font-bold text-foreground">Certificaciones</h2>
+      </div>
+      <div v-if="certificationCanSlide" class="flex items-center gap-2">
+        <button
+          type="button"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/50 bg-white/50 text-muted-foreground backdrop-blur-lg transition-colors hover:text-foreground dark:bg-white/5"
+          aria-label="Anterior"
+          @click="prevCertification"
+        >
+          <IconChevronLeft class="h-4 w-4" :stroke-width="1.5" />
+        </button>
+        <button
+          type="button"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/50 bg-white/50 text-muted-foreground backdrop-blur-lg transition-colors hover:text-foreground dark:bg-white/5"
+          aria-label="Siguiente"
+          @click="nextCertification"
+        >
+          <IconChevronRight class="h-4 w-4" :stroke-width="1.5" />
+        </button>
+      </div>
+    </div>
+
+    <div
+      v-if="certifications.length"
+      class="overflow-hidden"
+      @mouseenter="isCertificationPaused = true"
+      @mouseleave="isCertificationPaused = false"
+      @focusin="isCertificationPaused = true"
+      @focusout="isCertificationPaused = false"
+    >
+      <div class="-mx-1 flex transition-transform duration-500 ease-out" :style="certificationTrackStyle">
+        <article v-for="certification in certifications" :key="certification.id" class="w-full shrink-0 px-1 sm:w-1/2 lg:w-1/3">
+          <div class="group flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-white/50 backdrop-blur-lg transition-colors hover:border-primary/30 dark:bg-white/5">
+            <img :src="`/storage/${certification.image}`" :alt="certification.title" class="h-44 w-full object-cover" />
+            <div class="flex h-full flex-col p-5">
+              <h3 class="text-sm font-semibold text-foreground">{{ certification.title }}</h3>
+              <p class="mt-1.5 line-clamp-4 text-[13px] text-muted-foreground">{{ certification.description }}</p>
+              <a
+                v-if="certification.certificate_file"
+                :href="`/storage/${certification.certificate_file}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="mt-auto inline-flex items-center gap-1 pt-4 text-[13px] text-primary hover:underline"
+              >
+                <IconExternalLink class="h-3.5 w-3.5" :stroke-width="1.5" /> Ver diploma
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+    <div v-else class="rounded-xl border border-dashed border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg p-10 text-center text-sm text-muted-foreground">Próximamente...</div>
   </section>
 
   <!-- ===== BLOG ===== -->

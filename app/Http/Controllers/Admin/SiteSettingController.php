@@ -39,6 +39,7 @@ class SiteSettingController extends Controller
             'section_about_visible' => SiteSetting::get('section_about_visible', '1'),
             'section_projects_visible' => SiteSetting::get('section_projects_visible', '1'),
             'section_portfolio_visible' => SiteSetting::get('section_portfolio_visible', '1'),
+            'section_certifications_visible' => SiteSetting::get('section_certifications_visible', '1'),
             'section_blog_visible' => SiteSetting::get('section_blog_visible', '1'),
             'section_contact_visible' => SiteSetting::get('section_contact_visible', '1'),
         ];
@@ -73,6 +74,7 @@ class SiteSettingController extends Controller
             'section_about_visible' => 'nullable|string|in:0,1',
             'section_projects_visible' => 'nullable|string|in:0,1',
             'section_portfolio_visible' => 'nullable|string|in:0,1',
+            'section_certifications_visible' => 'nullable|string|in:0,1',
             'section_blog_visible' => 'nullable|string|in:0,1',
             'section_contact_visible' => 'nullable|string|in:0,1',
             'seo_title' => 'nullable|string|max:200',

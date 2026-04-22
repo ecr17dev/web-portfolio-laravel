@@ -28,6 +28,7 @@ const sectionFields = [
     { key: 'section_about_visible', label: 'Sobre mí' },
     { key: 'section_projects_visible', label: 'Side Projects' },
     { key: 'section_portfolio_visible', label: 'Portafolio' },
+    { key: 'section_certifications_visible', label: 'Certificaciones' },
     { key: 'section_blog_visible', label: 'Blog' },
     { key: 'section_contact_visible', label: 'Contacto' },
 ] as const;
@@ -51,6 +52,7 @@ const form = useForm({
     section_about_visible: props.settings.section_about_visible ?? '1',
     section_projects_visible: props.settings.section_projects_visible ?? '1',
     section_portfolio_visible: props.settings.section_portfolio_visible ?? '1',
+    section_certifications_visible: props.settings.section_certifications_visible ?? '1',
     section_blog_visible: props.settings.section_blog_visible ?? '1',
     section_contact_visible: props.settings.section_contact_visible ?? '1',
     seo_title: props.settings.seo_title || '',

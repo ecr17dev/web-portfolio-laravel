@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Models\Certification;
 use App\Models\Project;
 use App\Models\SiteSetting;
 use Inertia\Inertia;
@@ -24,6 +25,7 @@ class IndexController extends Controller
             'about' => SiteSetting::get('section_about_visible', '1') === '1',
             'projects' => SiteSetting::get('section_projects_visible', '1') === '1',
             'portfolio' => SiteSetting::get('section_portfolio_visible', '1') === '1',
+            'certifications' => SiteSetting::get('section_certifications_visible', '1') === '1',
             'blog' => SiteSetting::get('section_blog_visible', '1') === '1',
             'contact' => SiteSetting::get('section_contact_visible', '1') === '1',
         ];
@@ -40,6 +42,7 @@ class IndexController extends Controller
             'socials' => $socials,
             'sideProjects' => Project::published()->sideProjects()->orderBy('sort_order')->paginate(3, ['*'], 'side_projects_page'),
             'portfolios' => Project::published()->portfolio()->orderBy('sort_order')->paginate(3, ['*'], 'portfolios_page'),
+            'certifications' => Certification::published()->orderBy('sort_order')->get(),
             'blogs' => Blog::published()->latest('published_at')->paginate(3, ['*'], 'blogs_page'),
             'sectionVisibility' => $sectionVisibility,
             'seo' => [

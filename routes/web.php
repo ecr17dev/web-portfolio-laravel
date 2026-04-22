@@ -32,6 +32,11 @@ Route::middleware(['auth', 'verified', EnsureIsAdmin::class])
         Route::put('/blogs/{blog}', [Admin\BlogController::class, 'update'])->name('blogs.update');
         Route::delete('/blogs/{blog}', [Admin\BlogController::class, 'destroy'])->name('blogs.destroy');
 
+        Route::get('/certifications', [Admin\CertificationController::class, 'index'])->name('certifications.index');
+        Route::post('/certifications', [Admin\CertificationController::class, 'store'])->name('certifications.store');
+        Route::put('/certifications/{certification}', [Admin\CertificationController::class, 'update'])->name('certifications.update');
+        Route::delete('/certifications/{certification}', [Admin\CertificationController::class, 'destroy'])->name('certifications.destroy');
+
         Route::get('/contacts', [Admin\ContactController::class, 'index'])->name('contacts.index');
         Route::patch('/contacts/{contact}/read', [Admin\ContactController::class, 'markAsRead'])->name('contacts.read');
         Route::delete('/contacts/{contact}', [Admin\ContactController::class, 'destroy'])->name('contacts.destroy');

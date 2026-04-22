@@ -1,3 +1,4 @@
+import * as TablerIcons from '@tabler/icons-vue';
 import {
   IconApi,
   IconArrowsDiff,
@@ -20,7 +21,6 @@ import {
   IconBrandGraphql,
   IconBrandHtml5,
   IconBrandJavascript,
-  IconBrandJira,
   IconBrandKotlin,
   IconBrandLaravel,
   IconBrandMongodb,
@@ -52,6 +52,8 @@ import {
   IconServer2,
 } from '@tabler/icons-vue';
 import type { Component } from 'vue';
+
+const IconBrandJira = (TablerIcons as { IconBrandJira?: Component }).IconBrandJira ?? IconBolt;
 
 const TABLER_ICON_MAP: Record<string, Component> = {
   IconApi,
