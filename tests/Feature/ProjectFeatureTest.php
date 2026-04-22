@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Project;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ProjectFeatureTest extends TestCase
@@ -21,10 +23,18 @@ class ProjectFeatureTest extends TestCase
 
     public function test_project_detail_page_is_available_for_published_projects(): void
     {
+        SiteSetting::set('og_image', 'seo/default-og.jpg');
+        SiteSetting::set('twitter_image', 'seo/default-twitter.jpg');
+
         $project = Project::create([
             'title' => 'Proyecto Visible',
             'slug' => 'proyecto-visible',
-            'description' => 'Descripcion del proyecto',
+            'description' => '<p>Descripcion del proyecto</p>',
+            'gallery' => ['projects/gallery-main.jpg'],
+            'tags' => ['Laravel'],
+            'technologies' => [
+                ['key' => 'vue', 'name' => 'Vue.js', 'icon' => 'IconBrandVue'],
+            ],
             'type' => 'side_project',
             'published' => true,
         ]);
@@ -32,7 +42,18 @@ class ProjectFeatureTest extends TestCase
         $response = $this->get("/projects/{$project->slug}");
 
         $response->assertOk();
-        $response->assertSee($project->title);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Project')
+            ->where('project.slug', $project->slug)
+            ->where('seo.canonical', url("/projects/{$project->slug}"))
+            ->where('seo.ogImage', asset('storage/projects/gallery-main.jpg'))
+            ->where('seo.twitterImage', asset('storage/projects/gallery-main.jpg'))
+            ->where('seo.publishedAt', $project->created_at?->toIso8601String())
+            ->where('seo.modifiedAt', $project->updated_at?->toIso8601String())
+            ->where('seo.siteName', config('app.name'))
+            ->where('seo.keywords', fn ($keywords) => str_contains($keywords, 'Laravel') && str_contains($keywords, 'Vue.js'))
+            ->where('seo.structuredData', fn ($jsonLd) => str_contains($jsonLd, 'BreadcrumbList') && str_contains($jsonLd, 'SoftwareApplication'))
+        );
     }
 
     public function test_project_detail_returns_404_for_unpublished_projects(): void
@@ -48,6 +69,25 @@ class ProjectFeatureTest extends TestCase
         $response = $this->get("/projects/{$project->slug}");
 
         $response->assertNotFound();
+    }
+
+    public function test_project_detail_uses_creative_work_schema_for_portfolio(): void
+    {
+        $project = Project::create([
+            'title' => 'Portfolio SEO',
+            'slug' => 'portfolio-seo',
+            'description' => 'Descripcion portfolio',
+            'type' => 'portfolio',
+            'published' => true,
+        ]);
+
+        $response = $this->get("/projects/{$project->slug}");
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Project')
+            ->where('seo.structuredData', fn ($jsonLd) => str_contains($jsonLd, 'CreativeWork'))
+        );
     }
 
     public function test_sitemap_contains_published_project_urls(): void

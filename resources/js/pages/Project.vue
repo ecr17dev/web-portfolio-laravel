@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useAppearance } from '@/composables/useAppearance';
 import PixelParticles from '@/components/PixelParticles.vue';
 import Navbar from '@/components/Navbar.vue';
 import { resolveTablerIcon } from '@/lib/tabler-icons';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import {
   IconArrowLeft,
+  IconArrowLeftCircle,
+  IconArrowRightCircle,
+  IconX,
   IconTag,
   IconExternalLink,
   IconBrandGithub,
@@ -56,6 +60,9 @@ type Seo = {
   twitterImage: string;
   favicon: string;
   publishedAt: string | null;
+  modifiedAt: string | null;
+  siteName: string;
+  structuredData: string;
 };
 
 const props = defineProps<{
@@ -70,6 +77,64 @@ const backHref = computed(() => (props.project.type === 'side_project' ? '/#side
 const backLabel = computed(() => (props.project.type === 'side_project' ? 'Volver a side projects' : 'Volver a portafolio'));
 const projectTypeLabel = computed(() => (props.project.type === 'side_project' ? 'Side Project' : 'Portafolio'));
 const galleryImages = computed(() => props.project.gallery || []);
+const isLightboxOpen = ref(false);
+const activeImageIndex = ref(0);
+const lightboxCloseButton = ref<HTMLButtonElement | null>(null);
+
+const currentImage = computed(() => {
+  if (!galleryImages.value.length) return null;
+  return galleryImages.value[activeImageIndex.value] ?? null;
+});
+
+const currentImageAlt = computed(() => `${props.project.title} - imagen ${activeImageIndex.value + 1}`);
+
+function openLightbox(index: number) {
+  activeImageIndex.value = index;
+  isLightboxOpen.value = true;
+}
+
+function goToPreviousImage() {
+  if (!galleryImages.value.length) return;
+  activeImageIndex.value = (activeImageIndex.value - 1 + galleryImages.value.length) % galleryImages.value.length;
+}
+
+function goToNextImage() {
+  if (!galleryImages.value.length) return;
+  activeImageIndex.value = (activeImageIndex.value + 1) % galleryImages.value.length;
+}
+
+function onLightboxKeydown(event: KeyboardEvent) {
+  if (!isLightboxOpen.value) return;
+
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    goToPreviousImage();
+  }
+
+  if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    goToNextImage();
+  }
+
+  if (event.key === 'Escape') {
+    isLightboxOpen.value = false;
+  }
+}
+
+watch(isLightboxOpen, (open) => {
+  if (!open) return;
+  nextTick(() => {
+    lightboxCloseButton.value?.focus();
+  });
+});
+
+onMounted(() => {
+  window.addEventListener('keydown', onLightboxKeydown);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onLightboxKeydown);
+});
 </script>
 
 <template>
@@ -83,11 +148,14 @@ const galleryImages = computed(() => props.project.gallery || []);
   <meta property="og:type" :content="seo.ogType" />
   <meta v-if="seo.ogImage" property="og:image" :content="seo.ogImage" />
   <meta v-if="seo.canonical" property="og:url" :content="seo.canonical" />
+  <meta v-if="seo.siteName" property="og:site_name" :content="seo.siteName" />
   <meta v-if="seo.publishedAt" property="article:published_time" :content="seo.publishedAt" />
+  <meta v-if="seo.modifiedAt" property="article:modified_time" :content="seo.modifiedAt" />
   <meta name="twitter:card" :content="seo.twitterCard" />
   <meta name="twitter:title" :content="seo.twitterTitle" />
   <meta v-if="seo.twitterDescription" name="twitter:description" :content="seo.twitterDescription" />
   <meta v-if="seo.twitterImage" name="twitter:image" :content="seo.twitterImage" />
+  <component :is="'script'" v-if="seo.structuredData" type="application/ld+json" v-html="seo.structuredData" />
 </Head>
 
 <PixelParticles :isDark="resolvedAppearance === 'dark'" />
@@ -168,13 +236,20 @@ const galleryImages = computed(() => props.project.gallery || []);
           <IconPhoto class="h-4 w-4 text-primary" :stroke-width="1.5" /> Galería
         </div>
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <img
-            v-for="image in galleryImages"
+          <button
+            v-for="(image, index) in galleryImages"
             :key="image"
-            :src="`/storage/${image}`"
-            alt="Imagen del proyecto"
-            class="h-44 w-full rounded-lg border border-border/50 object-cover"
-          />
+            type="button"
+            class="group relative overflow-hidden rounded-lg border border-border/50"
+            @click="openLightbox(index)"
+            :aria-label="`Abrir imagen ${index + 1} de ${galleryImages.length}`"
+          >
+            <img
+              :src="`/storage/${image}`"
+              :alt="`${project.title} - imagen ${index + 1}`"
+              class="h-44 w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+            />
+          </button>
         </div>
       </section>
 
@@ -211,4 +286,54 @@ const galleryImages = computed(() => props.project.gallery || []);
     </div>
   </footer>
 </main>
+
+<Dialog :open="isLightboxOpen" @update:open="isLightboxOpen = $event">
+  <DialogContent
+    :show-close-button="false"
+    class="w-[min(96vw,1100px)] max-w-[96vw] border-border/40 bg-black/95 p-2 sm:p-4"
+  >
+    <DialogTitle class="sr-only">Galería de {{ project.title }}</DialogTitle>
+
+    <div class="relative flex items-center justify-center">
+      <img
+        v-if="currentImage"
+        :src="`/storage/${currentImage}`"
+        :alt="currentImageAlt"
+        class="max-h-[80vh] w-auto max-w-full rounded-md object-contain"
+      />
+
+      <button
+        ref="lightboxCloseButton"
+        type="button"
+        class="absolute top-2 right-2 rounded-full border border-white/30 bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
+        aria-label="Cerrar galería"
+        @click="isLightboxOpen = false"
+      >
+        <IconX class="h-5 w-5" :stroke-width="1.8" />
+      </button>
+
+      <button
+        type="button"
+        class="absolute left-2 rounded-full border border-white/30 bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
+        aria-label="Imagen anterior"
+        @click="goToPreviousImage"
+      >
+        <IconArrowLeftCircle class="h-7 w-7" :stroke-width="1.8" />
+      </button>
+
+      <button
+        type="button"
+        class="absolute right-2 rounded-full border border-white/30 bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
+        aria-label="Siguiente imagen"
+        @click="goToNextImage"
+      >
+        <IconArrowRightCircle class="h-7 w-7" :stroke-width="1.8" />
+      </button>
+
+      <div class="absolute bottom-2 rounded-full bg-black/65 px-3 py-1 text-xs font-medium text-white">
+        {{ activeImageIndex + 1 }} / {{ galleryImages.length }}
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
 </template>
