@@ -290,16 +290,16 @@ onBeforeUnmount(() => {
 <Dialog :open="isLightboxOpen" @update:open="isLightboxOpen = $event">
   <DialogContent
     :show-close-button="false"
-    class="w-[min(96vw,1100px)] max-w-[96vw] border-border/40 bg-black/95 p-2 sm:p-4"
+    class="h-[92vh] w-[96vw] max-w-[96vw] border-0 bg-black/95 p-0 shadow-none sm:max-w-[96vw]"
   >
     <DialogTitle class="sr-only">Galería de {{ project.title }}</DialogTitle>
 
-    <div class="relative flex items-center justify-center">
+    <div class="relative flex h-full w-full items-center justify-center px-12 py-6 sm:px-16">
       <img
         v-if="currentImage"
         :src="`/storage/${currentImage}`"
         :alt="currentImageAlt"
-        class="max-h-[80vh] w-auto max-w-full rounded-md object-contain"
+        class="max-h-full max-w-full rounded-md object-contain"
       />
 
       <button
@@ -314,7 +314,7 @@ onBeforeUnmount(() => {
 
       <button
         type="button"
-        class="absolute left-2 rounded-full border border-white/30 bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
+        class="absolute left-2 rounded-full border border-white/30 bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80 sm:left-4"
         aria-label="Imagen anterior"
         @click="goToPreviousImage"
       >
@@ -323,7 +323,7 @@ onBeforeUnmount(() => {
 
       <button
         type="button"
-        class="absolute right-2 rounded-full border border-white/30 bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
+        class="absolute right-2 rounded-full border border-white/30 bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80 sm:right-4"
         aria-label="Siguiente imagen"
         @click="goToNextImage"
       >
