@@ -65,7 +65,9 @@ const technologySearch = ref('');
 const filteredTechnologies = computed(() => {
     const term = technologySearch.value.trim().toLowerCase();
     if (!term) return technologyCatalog;
-    return technologyCatalog.filter((item) => item.name.toLowerCase().includes(term));
+    return technologyCatalog.filter(
+        (item) => item.name.toLowerCase().includes(term) || item.key.toLowerCase().includes(term),
+    );
 });
 
 function addTag() {
