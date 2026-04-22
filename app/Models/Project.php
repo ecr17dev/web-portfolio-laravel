@@ -8,13 +8,17 @@ class Project extends Model
 {
     protected $fillable = [
         'title', 'slug', 'description', 'image', 'url', 'repo_url',
-        'tags', 'type', 'featured', 'sort_order', 'published',
+        'tags', 'challenge', 'solution', 'results', 'features', 'gallery',
+        'technologies', 'type', 'featured', 'sort_order', 'published',
     ];
 
     protected function casts(): array
     {
         return [
             'tags' => 'array',
+            'features' => 'array',
+            'gallery' => 'array',
+            'technologies' => 'array',
             'featured' => 'boolean',
             'published' => 'boolean',
         ];

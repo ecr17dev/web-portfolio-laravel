@@ -14,7 +14,7 @@ import Navbar from '@/components/Navbar.vue';
 import PixelParticles from '@/components/PixelParticles.vue';
 import { useAppearance } from '@/composables/useAppearance';
 
-type Project = { id: number; title: string; description: string; image: string | null; url: string | null; repo_url: string | null; tags: string[] | null; type: string; featured: boolean };
+type Project = { id: number; slug: string; title: string; description: string; image: string | null; url: string | null; repo_url: string | null; tags: string[] | null; type: string; featured: boolean };
 type Blog = { id: number; title: string; slug: string; excerpt: string | null; image: string | null; tags: string[] | null; published_at: string | null };
 type Paginated<T> = { data: T[]; current_page: number; last_page: number; links: { url: string | null; label: string; active: boolean }[] };
 type Social = { network: string; url: string };
@@ -87,6 +87,9 @@ function goToPage(url: string | null, sectionId: string) {
 }
 function paginationLabel(label: string): string {
   return label.replace('&laquo; Previous', '« Anterior').replace('Next &raquo;', 'Siguiente »');
+}
+function goToProject(slug: string) {
+  router.visit(`/projects/${slug}`);
 }
 </script>
 
@@ -168,7 +171,7 @@ function paginationLabel(label: string): string {
     <div v-if="sideProjects.data.length" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <template v-for="(p, i) in sideProjects.data" :key="p.id">
         <!-- Pattern: wide, compact, compact (repeats every 3) -->
-        <div v-if="i % 3 === 0" class="group overflow-hidden rounded-xl border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg transition-colors hover:border-primary/30 sm:col-span-2">
+        <article v-if="i % 3 === 0" class="group cursor-pointer overflow-hidden rounded-xl border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg transition-colors hover:border-primary/30 sm:col-span-2" role="link" tabindex="0" @click="goToProject(p.slug)" @keydown.enter.prevent="goToProject(p.slug)">
           <div class="grid grid-cols-1 sm:grid-cols-2">
             <img v-if="p.image" :src="`/storage/${p.image}`" :alt="p.title" class="h-52 w-full object-cover sm:h-full" />
             <div class="flex flex-col p-5">
@@ -181,13 +184,13 @@ function paginationLabel(label: string): string {
                 <span v-for="tag in p.tags" :key="tag" class="rounded-full bg-white/60 dark:bg-white/10 px-2 py-0.5 text-[11px] text-secondary-foreground">{{ tag }}</span>
               </div>
               <div class="mt-auto flex gap-3 pt-4">
-                <a v-if="p.url" :href="p.url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-primary hover:underline"><IconExternalLink class="h-3 w-3" :stroke-width="1.5" /> Demo</a>
-                <a v-if="p.repo_url" :href="p.repo_url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground"><IconBrandGithub class="h-3 w-3" :stroke-width="1.5" /> Código</a>
+                <a v-if="p.url" :href="p.url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-primary hover:underline" @click.stop><IconExternalLink class="h-3 w-3" :stroke-width="1.5" /> Demo</a>
+                <a v-if="p.repo_url" :href="p.repo_url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground" @click.stop><IconBrandGithub class="h-3 w-3" :stroke-width="1.5" /> Código</a>
               </div>
             </div>
           </div>
-        </div>
-        <div v-else class="group overflow-hidden rounded-xl border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg transition-colors hover:border-primary/30">
+        </article>
+        <article v-else class="group cursor-pointer overflow-hidden rounded-xl border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg transition-colors hover:border-primary/30" role="link" tabindex="0" @click="goToProject(p.slug)" @keydown.enter.prevent="goToProject(p.slug)">
           <img v-if="p.image" :src="`/storage/${p.image}`" :alt="p.title" class="h-40 w-full object-cover" />
           <div class="flex flex-col p-5">
             <h3 class="text-sm font-semibold text-foreground">{{ p.title }}</h3>
@@ -196,11 +199,11 @@ function paginationLabel(label: string): string {
               <span v-for="tag in p.tags" :key="tag" class="rounded-full bg-white/60 dark:bg-white/10 px-2 py-0.5 text-[11px] text-secondary-foreground">{{ tag }}</span>
             </div>
             <div class="mt-auto flex gap-3 pt-3">
-              <a v-if="p.url" :href="p.url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-primary hover:underline"><IconExternalLink class="h-3 w-3" :stroke-width="1.5" /> Demo</a>
-              <a v-if="p.repo_url" :href="p.repo_url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground"><IconBrandGithub class="h-3 w-3" :stroke-width="1.5" /> Código</a>
+              <a v-if="p.url" :href="p.url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-primary hover:underline" @click.stop><IconExternalLink class="h-3 w-3" :stroke-width="1.5" /> Demo</a>
+              <a v-if="p.repo_url" :href="p.repo_url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground" @click.stop><IconBrandGithub class="h-3 w-3" :stroke-width="1.5" /> Código</a>
             </div>
           </div>
-        </div>
+        </article>
       </template>
     </div>
     <div v-else class="rounded-xl border border-dashed border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg p-10 text-center text-sm text-muted-foreground">Próximamente...</div>
@@ -218,7 +221,7 @@ function paginationLabel(label: string): string {
     <div v-if="portfolios.data.length" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <template v-for="(p, i) in portfolios.data" :key="p.id">
         <!-- Pattern: compact, compact, wide (repeats every 3) -->
-        <div v-if="i % 3 === 2" class="group overflow-hidden rounded-xl border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg transition-colors hover:border-primary/30 sm:col-span-2">
+        <article v-if="i % 3 === 2" class="group cursor-pointer overflow-hidden rounded-xl border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg transition-colors hover:border-primary/30 sm:col-span-2" role="link" tabindex="0" @click="goToProject(p.slug)" @keydown.enter.prevent="goToProject(p.slug)">
           <div class="grid grid-cols-1 sm:grid-cols-2">
             <img v-if="p.image" :src="`/storage/${p.image}`" :alt="p.title" class="h-52 w-full object-cover sm:h-full" />
             <div class="flex flex-col p-5">
@@ -228,13 +231,13 @@ function paginationLabel(label: string): string {
                 <span v-for="tag in p.tags" :key="tag" class="rounded-full bg-white/60 dark:bg-white/10 px-2 py-0.5 text-[11px] text-secondary-foreground">{{ tag }}</span>
               </div>
               <div class="mt-auto flex gap-3 pt-4">
-                <a v-if="p.url" :href="p.url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-primary hover:underline"><IconExternalLink class="h-3 w-3" :stroke-width="1.5" /> Ver proyecto</a>
-                <a v-if="p.repo_url" :href="p.repo_url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground"><IconBrandGithub class="h-3 w-3" :stroke-width="1.5" /> Código</a>
+                <a v-if="p.url" :href="p.url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-primary hover:underline" @click.stop><IconExternalLink class="h-3 w-3" :stroke-width="1.5" /> Ver proyecto</a>
+                <a v-if="p.repo_url" :href="p.repo_url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground" @click.stop><IconBrandGithub class="h-3 w-3" :stroke-width="1.5" /> Código</a>
               </div>
             </div>
           </div>
-        </div>
-        <div v-else class="group overflow-hidden rounded-xl border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg transition-colors hover:border-primary/30">
+        </article>
+        <article v-else class="group cursor-pointer overflow-hidden rounded-xl border border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg transition-colors hover:border-primary/30" role="link" tabindex="0" @click="goToProject(p.slug)" @keydown.enter.prevent="goToProject(p.slug)">
           <img v-if="p.image" :src="`/storage/${p.image}`" :alt="p.title" class="h-44 w-full object-cover transition-transform group-hover:scale-[1.02]" />
           <div class="p-5">
             <h3 class="text-sm font-semibold text-foreground">{{ p.title }}</h3>
@@ -243,11 +246,11 @@ function paginationLabel(label: string): string {
               <span v-for="tag in p.tags" :key="tag" class="rounded-full bg-white/60 dark:bg-white/10 px-2 py-0.5 text-[11px] text-secondary-foreground">{{ tag }}</span>
             </div>
             <div class="mt-3 flex gap-3">
-              <a v-if="p.url" :href="p.url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-primary hover:underline"><IconExternalLink class="h-3 w-3" :stroke-width="1.5" /> Ver proyecto</a>
-              <a v-if="p.repo_url" :href="p.repo_url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground"><IconBrandGithub class="h-3 w-3" :stroke-width="1.5" /> Código</a>
+              <a v-if="p.url" :href="p.url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-primary hover:underline" @click.stop><IconExternalLink class="h-3 w-3" :stroke-width="1.5" /> Ver proyecto</a>
+              <a v-if="p.repo_url" :href="p.repo_url" target="_blank" class="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground" @click.stop><IconBrandGithub class="h-3 w-3" :stroke-width="1.5" /> Código</a>
             </div>
           </div>
-        </div>
+        </article>
       </template>
     </div>
     <div v-else class="rounded-xl border border-dashed border-border/50 bg-white/50 dark:bg-white/5 backdrop-blur-lg p-10 text-center text-sm text-muted-foreground">Próximamente...</div>

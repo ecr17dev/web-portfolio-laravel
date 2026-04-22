@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SeoController;
 use App\Http\Middleware\EnsureIsAdmin;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,7 @@ Route::get('/robots.txt', [SeoController::class, 'robots'])->name('seo.robots');
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('seo.sitemap');
 Route::get('/', IndexController::class)->name('home');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+Route::get('/projects/{slug}', [ProjectController::class, 'show'])->name('projects.show');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 // Admin panel

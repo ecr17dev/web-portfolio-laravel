@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -27,7 +28,10 @@ class SeoController extends Controller
 
     public function sitemap(Request $request): Response
     {
-        $homeLastModified = Blog::published()->max('updated_at');
+        $homeLastModified = max(
+            Blog::published()->max('updated_at'),
+            Project::published()->max('updated_at')
+        );
         $homeLastmod = $homeLastModified
             ? \Illuminate\Support\Carbon::parse($homeLastModified)->toAtomString()
             : now()->toAtomString();
@@ -52,6 +56,20 @@ class SeoController extends Controller
             $urls[] = [
                 'loc' => url("/blog/{$blog->slug}"),
                 'lastmod' => $lastmod,
+                'changefreq' => 'weekly',
+                'priority' => '0.8',
+            ];
+        }
+
+        $projects = Project::published()
+            ->select(['slug', 'updated_at'])
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($projects as $project) {
+            $urls[] = [
+                'loc' => url("/projects/{$project->slug}"),
+                'lastmod' => ($project->updated_at ?? now())->toAtomString(),
                 'changefreq' => 'weekly',
                 'priority' => '0.8',
             ];
